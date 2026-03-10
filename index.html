@@ -15,7 +15,7 @@
 
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; overflow-x: hidden; }
 
-        /* Branding - Extra Large Visibility */
+        /* Branding */
         .logo-container { display: flex; align-items: center; justify-content: center; gap: 40px; margin: 25px 0; }
         .logo-container img { height: 95px; width: auto; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1)); }
         
@@ -59,7 +59,7 @@
             <img src="logo1.jpg" alt="Subham Grand">
             <img src="logo2.png" alt="Siri Dress Divine">
         </div>
-        <h2 style="color: var(--siri-purple);">Secure Entry Portal</h2>
+        <h2 style="color: var(--siri-purple);">Secure Master Access</h2>
         <input type="text" id="user" placeholder="Username">
         <input type="password" id="pass" placeholder="Password">
         <button class="btn btn-save" onclick="doLogin()">AUTHENTICATE</button>
@@ -79,30 +79,52 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 30px;">
             
             <div class="card">
-                <h3>📜 Today's Entry</h3>
+                <h3>📜 Entry Form</h3>
                 <input type="text" id="cName" placeholder="Customer Name">
                 <input type="tel" id="cPhone" placeholder="Mobile Number">
                 <input type="text" id="cBill" placeholder="Bill Number">
                 <input type="number" id="cAmount" placeholder="Bill Value (Min ₹2999)">
-                <button class="btn btn-save" onclick="saveToSheet()">SAVE DATA</button>
+                <button class="btn btn-save" onclick="saveToSheet()">SAVE ENTRY</button>
             </div>
 
             <div class="card" style="border: 4px solid var(--sg-pink); text-align: center;">
                 <h3 style="color: var(--sg-pink);">🎡 Lucky Draw Center</h3>
                 
                 <div id="adminControls" style="display: none; background: #fff5f8; padding: 15px; border-radius: 15px; margin-bottom: 15px;">
-                    <div style="font-weight: bold; margin-bottom: 10px; color: var(--siri-purple);">ADMIN TOOLS</div>
+                    <div style="font-weight: bold; margin-bottom: 10px; color: var(--siri-purple);">ADMIN HQ CONTROLS</div>
+                    
+                    <label style="font-size: 11px;">TIME PERIOD</label>
                     <select id="dateMode" onchange="refreshEntries()">
-                        <option value="today">Today's Entries</option>
-                        <option value="all">All Dates History</option>
+                        <option value="today">Today's Data Only</option>
+                        <option value="all">Historical Data (All Time)</option>
                     </select>
-                    <select id="drawScope" style="margin-top: 10px;">
-                        <option value="all">All Stores Combined</option>
-                        <option value="sg_eluru">Subham Grand - Eluru</option>
-                        <option value="sg_tanuku">Subham Grand - Tanuku</option>
-                        <option value="sg_vja">Subham Grand - Vijayawada</option>
-                        <option value="siri_hyd">Siri Divine - Hyderabad</option>
+
+                    <label style="font-size: 11px; margin-top: 10px; display: block;">TARGET LOCATION</label>
+                    <select id="drawScope">
+                        <option value="all">-- ALL STORES (COMPANY WIDE) --</option>
+                        <optgroup label="SUBHAM GRAND">
+                            <option value="sg_eluru">Subham Grand - Eluru</option>
+                            <option value="sg_tuni">Subham Grand - Tuni</option>
+                            <option value="sg_tanuku">Subham Grand - Tanuku</option>
+                            <option value="sg_tenali">Subham Grand - Tenali</option>
+                            <option value="sg_rjy">Subham Grand - Rajamahendravaram</option>
+                            <option value="sg_tpt">Subham Grand - Tirupati</option>
+                            <option value="sg_vja">Subham Grand - Vijayawada</option>
+                            <option value="sg_kkd">Subham Grand - Kakinada</option>
+                            <option value="sg_hyd">Subham Grand - Hyderabad</option>
+                        </optgroup>
+                        <optgroup label="SIRI DRESS DIVINE">
+                            <option value="siri_vja">Siri Divine - Vijayawada</option>
+                            <option value="siri_hyd">Siri Divine - Hyderabad</option>
+                            <option value="siri_kkd">Siri Divine - Kakinada</option>
+                            <option value="siri_vzg">Siri Divine - Vizag</option>
+                            <option value="siri_tpt">Siri Divine - Tirupati</option>
+                            <option value="siri_rjy">Siri Divine - Rajamahendravaram</option>
+                            <option value="siri_bvm">Siri Divine - Bhimavaram</option>
+                            <option value="siri_elr">Siri Divine - Eluru</option>
+                        </optgroup>
                     </select>
+                    
                     <button class="btn btn-download" onclick="downloadExcelReport()">📊 DOWNLOAD EXCEL REPORT</button>
                 </div>
 
@@ -116,8 +138,8 @@
 
         <div class="card" id="entriesCard" style="display: none;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h3 id="tableTitle">📊 Entries</h3>
-                <button onclick="refreshEntries()" style="background:var(--siri-purple); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer;">Refresh</button>
+                <h3 id="tableTitle">📊 Live Records</h3>
+                <button onclick="refreshEntries()" style="background:var(--siri-purple); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer;">Refresh List</button>
             </div>
             <div style="overflow-x:auto; margin-top:15px;">
                 <table id="dataTable" style="width:100%; border-collapse: collapse; font-size: 14px;">
@@ -154,8 +176,8 @@
 
     let loggedUser = "";
     let isMasterAdmin = false;
-    let currentWinner = null;
     let latestData = [];
+    let currentWinner = null;
 
     function doLogin() {
         const u = document.getElementById('user').value.toLowerCase().trim();
@@ -186,13 +208,17 @@
         const res = await fetch(SCRIPT_URL + "?action=getEntries");
         const all = await res.json();
         const mode = isMasterAdmin ? document.getElementById('dateMode').value : 'today';
-        const poolBasis = mode === 'today' ? all.filter(e => isFromToday(e.timestamp)) : all;
+        const entriesToUse = mode === 'today' ? all.filter(e => isFromToday(e.timestamp)) : all;
         
-        let pool = isMasterAdmin && document.getElementById('drawScope').value !== 'all' 
-                   ? poolBasis.filter(e => e.storeName === document.getElementById('drawScope').value) 
-                   : (isMasterAdmin ? poolBasis : poolBasis.filter(e => e.storeName === loggedUser));
+        let pool = [];
+        if (isMasterAdmin) {
+            const scope = document.getElementById('drawScope').value;
+            pool = scope === 'all' ? entriesToUse : entriesToUse.filter(e => e.storeName === scope);
+        } else {
+            pool = entriesToUse.filter(e => e.storeName === loggedUser);
+        }
 
-        if (pool.length < 1) { alert("NO ENTRIES FOUND!"); return; }
+        if (pool.length < 1) { alert("NO ENTRIES FOUND FOR THIS SELECTION!"); return; }
 
         document.getElementById('shuffleOverlay').style.display = 'flex';
         let counter = 0;
@@ -226,40 +252,33 @@
             billValue: document.getElementById('cAmount').value
         });
         await fetch(SCRIPT_URL, { method: 'POST', body: params });
-        alert("Entry Saved!");
+        alert("Success!");
         refreshEntries();
     }
 
     async function refreshEntries() {
         const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = '<tr><td colspan="5">Loading Cloud Data...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5">Syncing...</td></tr>';
         const res = await fetch(SCRIPT_URL + "?action=getEntries");
         latestData = await res.json();
-        
         const mode = isMasterAdmin ? document.getElementById('dateMode').value : 'today';
         const filtered = mode === 'today' ? latestData.filter(e => isFromToday(e.timestamp)) : latestData;
-        
         tbody.innerHTML = '';
-        filtered.reverse().forEach(e => {
+        filtered.reverse().slice(0, 100).forEach(e => {
             tbody.innerHTML += `<tr><td>${e.storeName.toUpperCase()}</td><td>${e.name}</td><td>${e.billNo}</td><td>₹${e.billValue}</td><td>${new Date(e.timestamp).toLocaleDateString()}</td></tr>`;
         });
     }
 
-    // --- NEW EXCEL DOWNLOAD LOGIC ---
     function downloadExcelReport() {
         const mode = document.getElementById('dateMode').value;
         const filtered = mode === 'today' ? latestData.filter(e => isFromToday(e.timestamp)) : latestData;
-        
-        let csvContent = "data:text/csv;charset=utf-8,Store,Customer Name,Phone,Bill No,Bill Value,Date\n";
+        let csvContent = "data:text/csv;charset=utf-8,Store,Customer Name,Phone,Bill No,Value,Date\n";
         filtered.forEach(e => {
-            const row = `${e.storeName},${e.name},${e.phone},${e.billNo},${e.billValue},${new Date(e.timestamp).toLocaleDateString()}`;
-            csvContent += row + "\n";
+            csvContent += `${e.storeName},${e.name},${e.phone},${e.billNo},${e.billValue},${new Date(e.timestamp).toLocaleDateString()}\n`;
         });
-
-        const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `SG_Siri_Report_${mode}_${new Date().toLocaleDateString()}.csv`);
+        link.setAttribute("href", encodeURI(csvContent));
+        link.setAttribute("download", `SG_Report_${mode}.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -267,7 +286,7 @@
 
     function closeWinner() { document.getElementById('winnerOverlay').style.display = 'none'; document.getElementById('winnerCoupon').classList.remove('show'); }
     function waNotify() {
-        window.open(`https://api.whatsapp.com/send?phone=91${currentWinner.phone}&text=Congratulations ${currentWinner.name}! You won the Draw!`);
+        window.open(`https://api.whatsapp.com/send?phone=91${currentWinner.phone}&text=Congratulations ${currentWinner.name}!`);
     }
 </script>
 </body>
