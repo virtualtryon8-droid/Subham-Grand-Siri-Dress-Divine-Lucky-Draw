@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SG & Siri | Daily Lucky Draw</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --siri-purple: #4b0082;
+            --sg-pink: #d63384;
+            --prestige-gold: #ffd700;
+            --bg: #f0f2f5;
+        }
+
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); margin: 0; overflow-x: hidden; }
+
+        /* --- ENHANCED LOGO STYLING --- */
+        .logo-container { display: flex; align-items: center; justify-content: center; gap: 30px; margin: 20px 0; padding: 10px; }
+        .logo-container img { height: 85px; width: auto; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
+        
+        .nav-logos { display: flex; align-items: center; gap: 20px; }
+        .nav-logos img { height: 55px; object-fit: contain; }
+
+        /* Layout Components */
+        .nav { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.08); border-bottom: 3px solid var(--siri-purple); position: sticky; top: 0; z-index: 100; }
+        .logout-link { color: #dc3545; font-size: 14px; cursor: pointer; font-weight: bold; padding: 8px 16px; border: 2px solid #dc3545; border-radius: 8px; text-decoration: none; transition: 0.3s; }
+        .logout-link:hover { background: #dc3545; color: white; }
+
+        .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+        .card { background: white; padding: 35px; border-radius: 20px; margin-bottom: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #eee; }
+
+        input { width: 100%; padding: 16px; margin: 12px 0; border: 2px solid #eee; border-radius: 12px; font-size: 16px; transition: 0.3s; }
+        input:focus { border-color: var(--siri-purple); outline: none; box-shadow: 0 0 8px rgba(75, 0, 130, 0.1); }
+        
+        .btn { width: 100%; padding: 18px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 18px; text-transform: uppercase; letter-spacing: 1px; transition: 0.4s; }
+        .btn-save { background: var(--siri-purple); color: white; box-shadow: 0 4px 15px rgba(75, 0, 130, 0.2); }
+        .btn-winner { background: linear-gradient(45deg, var(--sg-pink), #ff1493); color: white; margin-top: 15px; box-shadow: 0 4px 15px rgba(214, 51, 132, 0.2); }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+
+        /* --- SHUFFLE OVERLAY --- */
+        #shuffleOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; flex-direction: column; align-items: center; justify-content: center; color: white; }
+        #shufflingName { font-size: 55px; font-weight: 900; margin: 25px; color: var(--prestige-gold); text-align: center; }
+
+        /* --- ENHANCED WINNER COUPON --- */
+        .overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.92); z-index:3000; align-items:center; justify-content:center; }
+        .coupon { background: white; width: 420px; padding: 40px; border-radius: 30px; text-align: center; border: 8px double var(--prestige-gold); transform: scale(0.6); opacity: 0; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .coupon.show { transform: scale(1); opacity: 1; }
+        .coupon h1 { color: var(--sg-pink); margin-top: 0; font-size: 32px; }
+        .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #ddd; font-size: 16px; }
+        .detail-row span:last-child { font-weight: bold; color: var(--siri-purple); }
+        .tc-apply { font-size: 12px; color: #999; margin-top: 20px; font-style: italic; }
+    </style>
+</head>
+<body>
+
+<div id="shuffleOverlay">
+    <div style="letter-spacing: 5px; color: var(--sg-pink); font-size: 14px; margin-bottom: 10px;">DAILY DRAW IN PROGRESS</div>
+    <div id="shufflingName">---</div>
+    <div id="shufflingLoc" style="opacity: 0.6; font-size: 18px;"></div>
+</div>
+
+<div id="loginPage" style="display: flex; align-items: center; justify-content: center; height: 100vh;">
+    <div class="card" style="width: 450px; text-align: center; border-top: 8px solid var(--siri-purple);">
+        <div class="logo-container">
+            <img src="logo1.jpg" alt="Subham Grand">
+            <img src="logo2.png" alt="Siri Dress Divine">
+        </div>
+        <h2 style="color: var(--siri-purple); margin-bottom: 30px;">Daily Entry & Draw System</h2>
+        <input type="text" id="user" placeholder="Username">
+        <input type="password" id="pass" placeholder="Password">
+        <button class="btn btn-save" onclick="doLogin()">ACCESS PORTAL</button>
+    </div>
+</div>
+
+<div id="mainPage" style="display: none;">
+    <div class="nav">
+        <div class="nav-logos">
+            <img src="logo1.jpg">
+            <img src="logo2.png">
+        </div>
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <span id="storeTag" style="font-weight:bold; color:var(--siri-purple); font-size: 18px;"></span>
+            <a class="logout-link" onclick="location.reload()">Logout</a>
+        </div>
+    </div>
+
+    <div class="container" id="mainContainer">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px;">
+            <div class="card">
+                <h3>📝 Today's Entry Form</h3>
+                <input type="text" id="cName" placeholder="Customer Name">
+                <input type="tel" id="cPhone" placeholder="Mobile Number">
+                <input type="text" id="cBill" placeholder="Bill Number">
+                <input type="number" id="cAmount" placeholder="Bill Value (₹)">
+                <button class="btn btn-save" onclick="saveToSheet()">✅ SUBMIT TODAY'S ENTRY</button>
+            </div>
+
+            <div class="card" style="text-align: center; border: 3px solid var(--sg-pink);">
+                <h3 style="color: var(--sg-pink);">🎡 TODAY'S LUCKY DRAW</h3>
+                <p style="font-size: 13px; color: #666;">Note: Only entries from <b>Today</b> will be considered.</p>
+                <div id="adminOptions" style="display: none; margin-bottom: 15px;">
+                    <select id="drawScope" style="width:100%; padding:10px; border-radius:10px;">
+                        <option value="store">Today's Local Entries</option>
+                        <option value="all">Today's All Store Entries</option>
+                    </select>
+                </div>
+                <button class="btn btn-winner" onclick="pickWinnerWithShuffle()">🎰 PICK TODAY'S WINNER</button>
+            </div>
+        </div>
+
+        <div class="card" id="entriesCard" style="display: none;">
+            <h3>📊 Live Entries (Today Only)</h3>
+            <div id="todayCounter" style="color: var(--sg-pink); font-weight: bold; margin-bottom: 15px;"></div>
+            <div style="overflow-x:auto;">
+                <table style="width:100%; border-collapse: collapse; font-size: 14px;">
+                    <thead style="background:#f8f9fa;"><tr><th style="padding:15px; text-align:left;">Store</th><th style="padding:15px; text-align:left;">Name</th><th style="padding:15px; text-align:left;">Bill #</th><th style="padding:15px; text-align:left;">Value</th></tr></thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="winnerOverlay" class="overlay">
+    <div class="coupon" id="winnerCoupon">
+        <h1>🎉 CONGRATULATIONS 🎉</h1>
+        <div id="winnerDetails" style="margin-top: 20px; text-align: left;">
+            </div>
+        <p class="tc-apply">* Terms & Conditions Apply. Original bill required for claim.</p>
+        <button class="btn" style="background:#25D366; color:white; margin-top: 15px;" onclick="waNotify()">📲 WHATSAPP WINNER</button>
+        <button onclick="closeWinner()" style="margin-top:20px; background:none; border:none; color:#bbb; cursor:pointer; text-decoration:underline;">Close</button>
+    </div>
+</div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzsv6F8oW_HxQh2wA1MDSsAk7ro-aGgeO4dkR0PziKsW_kHTw30kaUvKDYbVa2n3e1XOA/exec";
+    
+    const CREDENTIALS = {
+        "sg_eluru": "SG@2026!ELR", "sg_tanuku": "SG@2026!TNK", "sg_tuni": "SG@2026!TNI",
+        "sg_tenali": "SG@2026!TNL", "sg_rjy": "SG@2026!RJY", "sg_vja": "SG@2026!VJA",
+        "sg_kkd": "SG@2026!KKD", "sg_tpt": "SG@2026!TPT", "sg_hyd": "SG@2026!HYD", "sg_cpt": "SG@2026!CPT",
+        "siri_hyd": "SIRI@2026!HYD", "siri_vja": "SIRI@2026!VJA", "siri_kkd": "SIRI@2026!KKD",
+        "siri_cpt": "SIRI@2026!CPT", "siri_vzg": "SIRI@2026!VZG", "siri_tpt": "SIRI@2026!TPT",
+        "siri_rjy": "SIRI@2026!RJY", "siri_bvm": "SIRI@2026!BVM", "siri_elr": "SIRI@2026!ELR",
+        "admin_hq": "SG_SIRI_MASTER_2026"
+    };
+
+    let loggedUser = "";
+    let isMasterAdmin = false;
+    let currentWinner = null;
+
+    function doLogin() {
+        const u = document.getElementById('user').value.toLowerCase().trim();
+        const p = document.getElementById('pass').value.trim();
+        if (CREDENTIALS[u] === p) {
+            loggedUser = u;
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('mainPage').style.display = 'block';
+            if (u === "admin_hq") {
+                isMasterAdmin = true;
+                document.getElementById('storeTag').innerText = "👑 ADMIN HQ";
+                document.getElementById('adminOptions').style.display = "block";
+                document.getElementById('entriesCard').style.display = "block";
+                refreshEntries();
+            } else {
+                document.getElementById('storeTag').innerText = "📍 " + u.toUpperCase();
+            }
+        } else { alert("Invalid Credentials!"); }
+    }
+
+    // --- DAILY DATA FILTER LOGIC ---
+    function isFromToday(dateString) {
+        if(!dateString) return true; // Fallback if no timestamp
+        const entryDate = new Date(dateString).toDateString();
+        const today = new Date().toDateString();
+        return entryDate === today;
+    }
+
+    async function pickWinnerWithShuffle() {
+        const res = await fetch(SCRIPT_URL + "?action=getEntries");
+        const allEntries = await res.json();
+        
+        // Filter for TODAY ONLY
+        const todayEntries = allEntries.filter(e => isFromToday(e.timestamp));
+        
+        let pool = isMasterAdmin && document.getElementById('drawScope').value === 'all' 
+                   ? todayEntries : todayEntries.filter(e => e.storeName === loggedUser);
+
+        if (pool.length < 1) { alert("No entries recorded for TODAY yet!"); return; }
+
+        document.getElementById('shuffleOverlay').style.display = 'flex';
+        document.getElementById('mainContainer').style.filter = 'blur(10px)';
+        
+        let counter = 0;
+        let shuffleInterval = setInterval(() => {
+            let rand = pool[Math.floor(Math.random() * pool.length)];
+            document.getElementById('shufflingName').innerText = rand.name.toUpperCase();
+            document.getElementById('shufflingLoc').innerText = "STORE: " + rand.storeName.toUpperCase();
+            counter++;
+            if (counter > 45) {
+                clearInterval(shuffleInterval);
+                finishDraw(pool);
+            }
+        }, 60);
+    }
+
+    function finishDraw(pool) {
+        currentWinner = pool[Math.floor(Math.random() * pool.length)];
+        document.getElementById('shuffleOverlay').style.display = 'none';
+        document.getElementById('mainContainer').style.filter = 'none';
+        
+        document.getElementById('winnerDetails').innerHTML = `
+            <div class="detail-row"><span>Winner Name:</span><span>${currentWinner.name}</span></div>
+            <div class="detail-row"><span>Mobile:</span><span>${currentWinner.phone}</span></div>
+            <div class="detail-row"><span>Bill Number:</span><span>${currentWinner.billNo}</span></div>
+            <div class="detail-row"><span>Bill Value:</span><span>₹${currentWinner.billValue}</span></div>
+            <div class="detail-row"><span>Store:</span><span>${currentWinner.storeName.toUpperCase()}</span></div>
+        `;
+        
+        document.getElementById('winnerOverlay').style.display = 'flex';
+        setTimeout(() => { document.getElementById('winnerCoupon').classList.add('show'); }, 50);
+        
+        // Celebration Blast
+        confetti({ particleCount: 300, spread: 120, origin: { y: 0.6 }, colors: ['#4b0082', '#d63384', '#ffd700'] });
+    }
+
+    async function saveToSheet() {
+        const amt = document.getElementById('cAmount').value;
+        if (amt < 2999) { alert("Bill must be Min ₹2999!"); return; }
+        const params = new URLSearchParams({
+            storeName: loggedUser, customerName: document.getElementById('cName').value,
+            phoneNumber: document.getElementById('cPhone').value, billNumber: document.getElementById('cBill').value,
+            billValue: amt
+        });
+        await fetch(SCRIPT_URL, { method: 'POST', body: params });
+        alert("Success! Entry recorded for Today.");
+        ["cName", "cPhone", "cBill", "cAmount"].forEach(id => document.getElementById(id).value = "");
+        if(isMasterAdmin) refreshEntries();
+    }
+
+    async function refreshEntries() {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '<tr><td colspan="4">Syncing Today\'s Data...</td></tr>';
+        const res = await fetch(SCRIPT_URL + "?action=getEntries");
+        const data = await res.json();
+        
+        const todayData = data.filter(e => isFromToday(e.timestamp));
+        document.getElementById('todayCounter').innerText = `Today's Count: ${todayData.length}`;
+        
+        tbody.innerHTML = '';
+        todayData.reverse().slice(0, 50).forEach(e => {
+            tbody.innerHTML += `<tr><td style="padding:15px; border-bottom:1px solid #eee; font-weight:bold;">${e.storeName.toUpperCase()}</td><td>${e.name}</td><td>${e.billNo}</td><td>₹${e.billValue}</td></tr>`;
+        });
+    }
+
+    function closeWinner() {
+        document.getElementById('winnerOverlay').style.display = 'none';
+        document.getElementById('winnerCoupon').classList.remove('show');
+    }
+
+    function waNotify() {
+        const text = `Congratulations ${currentWinner.name}! 🎊 You won the Lucky Draw today at ${currentWinner.storeName.toUpperCase()}! Bill: ${currentWinner.billNo}. Please visit store to claim.`;
+        window.open(`https://api.whatsapp.com/send?phone=91${currentWinner.phone}&text=${encodeURIComponent(text)}`);
+    }
+</script>
+</body>
+  </html>
+
