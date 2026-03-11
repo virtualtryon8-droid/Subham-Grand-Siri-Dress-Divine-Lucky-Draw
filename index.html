@@ -9,22 +9,20 @@
         :root { --siri-purple: #4b0082; --sg-pink: #d63384; --gold: #ffd700; --bg: #f8fafc; }
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); margin: 0; color: #1e293b; }
         .nav { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--siri-purple); position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        .nav-logos img { height: 50px; margin-right: 15px; border-radius: 8px; }
         .container { max-width: 1300px; margin: 30px auto; padding: 0 20px; }
         .card { background: white; padding: 25px; border-radius: 16px; margin-bottom: 25px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
         h3 { color: var(--siri-purple); margin-top: 0; border-left: 5px solid var(--sg-pink); padding-left: 15px; }
-        input, select { width: 100%; padding: 14px; margin: 8px 0; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; transition: 0.2s; }
-        input:focus, select:focus { border-color: var(--siri-purple); outline: none; background: #fdfaff; }
+        input, select { width: 100%; padding: 14px; margin: 8px 0; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; box-sizing: border-box; }
         .btn { width: 100%; padding: 16px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
         .btn-save { background: var(--siri-purple); color: white; }
         .btn-winner { background: linear-gradient(135deg, var(--gold), #f59e0b); color: #000; border: 2px solid #b45309; }
-        .btn-winner:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4); }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th { background: #f1f5f9; padding: 12px; text-align: left; font-size: 13px; color: #64748b; }
         td { padding: 14px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
-        .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; }
         .sg-badge { background: #fdf2f8; color: var(--sg-pink); border: 1px solid #fbcfe8; }
         .siri-badge { background: #f5f3ff; color: var(--siri-purple); border: 1px solid #ddd6fe; }
+        #searchBox { background: #fff; border: 2px solid var(--siri-purple); margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -40,41 +38,44 @@
 
 <div id="mainPage" style="display: none;">
     <div class="nav">
-        <div class="nav-logos"><img src="logo1.jpg"><img src="logo2.png"></div>
+        <div style="font-weight: bold; font-size: 20px; color: var(--siri-purple);">SG & SIRI</div>
         <div>
             <span id="storeTag" style="font-weight:bold; color: var(--siri-purple); margin-right: 20px;"></span>
-            <button onclick="location.reload()" style="color:#ef4444; border:1px solid #ef4444; background:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight: 600;">Logout</button>
+            <button onclick="location.reload()" style="color:#ef4444; border:1px solid #ef4444; background:none; padding:8px 16px; border-radius:8px; cursor:pointer;">Logout</button>
         </div>
     </div>
 
     <div class="container">
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px;">
             <div class="card">
-                <h3>📜 Customer Billing</h3>
+                <h3>📜 New Entry</h3>
                 <input type="text" id="cName" placeholder="Customer Name">
                 <input type="tel" id="cPhone" placeholder="Mobile Number">
                 <input type="text" id="cBill" placeholder="Bill Number">
-                <input type="number" id="cAmount" placeholder="Bill Amount (Min ₹2999)">
+                <input type="number" id="cAmount" placeholder="Bill Amount">
                 <button class="btn btn-save" id="saveBtn" onclick="saveToSheet()">Save Entry</button>
             </div>
 
-            <div class="card" style="border: 2px solid var(--gold); background: #fffdf5;">
-                <h3 style="border-color: var(--gold);">🎡 Lucky Draw Center</h3>
+            <div class="card" style="border: 2px solid var(--gold);">
+                <h3>🎡 Lucky Draw Center</h3>
                 <div id="adminDrawControls" style="display:none;">
-                    <label style="font-size: 12px; font-weight: bold; color: #b45309;">SELECT DRAW SCOPE:</label>
                     <select id="drawFilter"></select>
                 </div>
-                <p id="drawInfo" style="font-size: 13px; color: #64748b; margin: 15px 0;">Ready to run the random selection.</p>
+                <p id="drawInfo" style="font-size: 13px; color: #64748b; margin: 15px 0;">Entries will be picked based on your access level.</p>
                 <button class="btn btn-winner" onclick="pickWinner()">🚀 Run Live Draw</button>
             </div>
         </div>
 
         <div class="card">
-            <h3>📊 Live Data (Last 50 Entries)</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <h3>📊 <span id="tableTitle">Records</span></h3>
+                <input type="text" id="searchBox" placeholder="🔍 Search Name or Phone..." style="width: 300px;" onkeyup="filterTable()">
+                <button class="btn" style="width: auto; padding: 10px 20px; background: #eee; font-size: 12px;" onclick="refreshEntries()">Refresh List</button>
+            </div>
             <div style="overflow-x:auto;">
-                <table>
+                <table id="mainTable">
                     <thead>
-                        <tr><th>Store</th><th>Customer</th><th>Bill #</th><th>Value</th><th>Date</th></tr>
+                        <tr><th>Store</th><th>Customer</th><th>Phone</th><th>Bill #</th><th>Value</th><th>Date</th></tr>
                     </thead>
                     <tbody id="tableBody"></tbody>
                 </table>
@@ -86,15 +87,12 @@
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzsv6F8oW_HxQh2wA1MDSsAk7ro-aGgeO4dkR0PziKsW_kHTw30kaUvKDYbVa2n3e1XOA/exec";
     
-    // MASTER LIST: SUBHAM GRAND & SIRI LOCATIONS
     const CREDENTIALS = {
         "admin_hq": "SG_SIRI_MASTER_2026",
-        // Subham Grand
         "sg_eluru": "SG@ELR2026", "sg_tanuku": "SG@TNK2026", "sg_tuni": "SG@TUNI2026",
         "sg_tenali": "SG@TEN2026", "sg_rajahmundry": "SG@RJY2026", "sg_vja": "SG@VJA2026",
         "sg_kakinada": "SG@KKD2026", "sg_tirupati": "SG@TPT2026", "sg_hyderabad": "SG@HYD2026",
         "sg_chilakaluripet": "SG@CPT2026",
-        // Siri
         "siri_hyderabad": "SIRI@HYD2026", "siri_vja": "SIRI@VJA2026", "siri_kakinada": "SIRI@KKD2026",
         "siri_chilakaluripet": "SIRI@CPT2026", "siri_vizag": "SIRI@VZG2026", "siri_tirupati": "SIRI@TPT2026",
         "siri_rajahmundry": "SIRI@RJY2026", "siri_bhimavaram": "SIRI@BVM2026", "siri_eluru": "SIRI@ELR2026"
@@ -109,41 +107,48 @@
             loggedUser = u;
             document.getElementById('loginPage').style.display = 'none';
             document.getElementById('mainPage').style.display = 'block';
-            document.getElementById('storeTag').innerText = u === 'admin_hq' ? "👑 MASTER ADMIN" : "📍 " + u.replace('sg_','SG ').replace('siri_','SIRI ').toUpperCase();
             
-            if (u === "admin_hq") {
+            const isMaster = (u === 'admin_hq');
+            document.getElementById('storeTag').innerText = isMaster ? "👑 MASTER ADMIN" : "📍 " + u.toUpperCase();
+            document.getElementById('tableTitle').innerText = isMaster ? "ALL STORE RECORDS" : "YOUR STORE RECORDS";
+
+            if (isMaster) {
                 const filter = document.getElementById('drawFilter');
-                filter.innerHTML = `<option value="ALL">🌍 ALL STORES (Global)</option>`;
+                filter.innerHTML = `<option value="ALL">🌍 ALL STORES (GLOBAL DRAW)</option>`;
                 Object.keys(CREDENTIALS).forEach(key => {
-                    if(key !== 'admin_hq') filter.innerHTML += `<option value="${key}">${key.replace('_',' ').toUpperCase()}</option>`;
+                    if(key !== 'admin_hq') filter.innerHTML += `<option value="${key}">${key.toUpperCase()}</option>`;
                 });
                 document.getElementById('adminDrawControls').style.display = "block";
             }
             refreshEntries();
-        } else { alert("Wrong Username/Password!"); }
+        } else { alert("Login Failed!"); }
     }
 
     async function refreshEntries() {
         const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = '<tr><td colspan="5">Syncing with Google Database...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6">Loading Data...</td></tr>';
         try {
             const res = await fetch(SCRIPT_URL + "?action=getEntries");
-            latestData = await res.json();
+            const rawData = await res.json();
+            
+            // Logic: Filter data for stores, show all for admin_hq
+            latestData = (loggedUser === 'admin_hq') ? rawData : rawData.filter(e => e.storeName === loggedUser);
+            
             tbody.innerHTML = '';
             latestData.slice().reverse().forEach(e => {
                 const bType = e.storeName.startsWith('sg') ? 'sg-badge' : 'siri-badge';
                 tbody.innerHTML += `<tr>
                     <td><span class="badge ${bType}">${e.storeName.toUpperCase()}</span></td>
-                    <td>${e.name}</td><td>${e.billNo}</td><td>₹${e.billValue}</td>
+                    <td>${e.name}</td><td>${e.phone || '-'}</td><td>${e.billNo}</td><td>₹${e.billValue}</td>
                     <td>${new Date(e.timestamp).toLocaleDateString()}</td>
                 </tr>`;
             });
-        } catch (e) { tbody.innerHTML = '<tr><td colspan="5">Error loading data.</td></tr>'; }
+        } catch (e) { tbody.innerHTML = '<tr><td colspan="6">Error loading data.</td></tr>'; }
     }
 
     async function saveToSheet() {
         const btn = document.getElementById('saveBtn');
-        btn.disabled = true; btn.innerText = "Processing...";
+        btn.disabled = true; btn.innerText = "Saving...";
         const params = new URLSearchParams({ 
             storeName: loggedUser, customerName: document.getElementById('cName').value, 
             phoneNumber: document.getElementById('cPhone').value, 
@@ -151,23 +156,31 @@
             billValue: document.getElementById('cAmount').value 
         });
         await fetch(SCRIPT_URL, { method: 'POST', body: params, mode: 'no-cors' });
-        alert("Success! Entry Recorded.");
-        document.querySelectorAll('input').forEach(i => i.value = '');
+        alert("Saved!");
+        document.querySelectorAll('input:not(#searchBox)').forEach(i => i.value = '');
         btn.disabled = false; btn.innerText = "Save Entry";
         refreshEntries();
     }
 
-    function pickWinner() {
-        if (latestData.length === 0) return alert("No entries yet!");
-        let pool = (loggedUser === 'admin_hq' && document.getElementById('drawFilter').value !== "ALL") 
-                   ? latestData.filter(e => e.storeName === document.getElementById('drawFilter').value)
-                   : (loggedUser === 'admin_hq' ? latestData : latestData.filter(e => e.storeName === loggedUser));
+    function filterTable() {
+        const q = document.getElementById('searchBox').value.toLowerCase();
+        const rows = document.getElementById('tableBody').getElementsByTagName('tr');
+        for (let row of rows) {
+            row.style.display = row.innerText.toLowerCase().includes(q) ? "" : "none";
+        }
+    }
 
-        if (pool.length === 0) return alert("No entries found for this selection!");
+    function pickWinner() {
+        let pool = latestData;
+        if (loggedUser === 'admin_hq') {
+            const scope = document.getElementById('drawFilter').value;
+            if(scope !== "ALL") pool = latestData.filter(e => e.storeName === scope);
+        }
         
+        if (pool.length === 0) return alert("No entries found!");
         const winner = pool[Math.floor(Math.random() * pool.length)];
-        confetti({ particleCount: 250, spread: 100, origin: { y: 0.6 } });
-        alert(`🎉 WINNER PICKED! 🎉\n\nName: ${winner.name.toUpperCase()}\nStore: ${winner.storeName.toUpperCase()}\nBill #: ${winner.billNo}`);
+        confetti({ particleCount: 200, spread: 70 });
+        alert(`🏆 WINNER: ${winner.name.toUpperCase()}\nStore: ${winner.storeName.toUpperCase()}\nBill: ${winner.billNo}`);
     }
 </script>
 </body>
