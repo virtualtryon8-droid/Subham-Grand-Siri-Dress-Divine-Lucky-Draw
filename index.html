@@ -8,126 +8,105 @@
     <style>
         :root { --siri-purple: #4b0082; --sg-pink: #d63384; --prestige-gold: #ffd700; --bg: #f4f7f6; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; }
-        .logo-container { display: flex; align-items: center; justify-content: center; gap: 40px; margin: 20px 0; }
-        .logo-container img { height: 80px; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1)); }
-        .nav { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--siri-purple); position: sticky; top: 0; z-index: 100; }
-        .nav-logos img { height: 50px; margin-right: 15px; }
-        .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
-        .card { background: white; padding: 25px; border-radius: 15px; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        
+        /* Branding Styles */
+        .brand-header { display: flex; align-items: center; justify-content: center; gap: 40px; margin: 25px 0; }
+        .brand-header img { height: 90px; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1)); border-radius: 10px; }
+        
+        .nav { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--siri-purple); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .nav-logos { display: flex; align-items: center; gap: 20px; }
+        .nav-logos img { height: 55px; }
+        
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .card { background: white; padding: 30px; border-radius: 20px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
         h3 { color: var(--siri-purple); border-left: 5px solid var(--sg-pink); padding-left: 15px; margin-top: 0; }
-        input, select { width: 100%; padding: 14px; margin: 8px 0; border: 2px solid #eee; border-radius: 10px; font-size: 15px; box-sizing: border-box; }
-        .btn { width: 100%; padding: 16px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+        input, select { width: 100%; padding: 16px; margin: 10px 0; border: 2px solid #eee; border-radius: 12px; font-size: 16px; box-sizing: border-box; }
+        
+        .btn { width: 100%; padding: 18px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
         .btn-save { background: var(--siri-purple); color: white; }
         .btn-winner { background: linear-gradient(45deg, var(--sg-pink), #ff007f); color: white; }
-        .btn-download { background: #1D6F42; color: white; margin-top: 10px; font-size: 13px; }
-        #shuffleOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); z-index: 2000; flex-direction: column; align-items: center; justify-content: center; color: white; }
-        .overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.94); z-index:3000; align-items:center; justify-content:center; }
-        .coupon { background: white; width: 400px; padding: 30px; border-radius: 30px; text-align: center; border: 8px double var(--prestige-gold); transform: scale(0.5); opacity: 0; transition: 0.5s; }
-        .coupon.show { transform: scale(1); opacity: 1; }
-        table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        th { background: #f8f8f8; padding: 10px; text-align: left; border-bottom: 2px solid #eee; }
-        td { padding: 10px; border-bottom: 1px solid #eee; }
+        
+        table { width: 100%; border-collapse: collapse; font-size: 15px; margin-top: 10px; }
+        th { background: #f8f8f8; padding: 15px; text-align: left; border-bottom: 3px solid #eee; color: #555; }
+        td { padding: 15px; border-bottom: 1px solid #eee; }
+        .invalid-date { color: #d9534f; font-weight: bold; background: #fff1f0; padding: 4px 8px; border-radius: 4px; }
     </style>
 </head>
 <body>
 
-<div id="shuffleOverlay">
-    <div style="letter-spacing: 5px; color: var(--sg-pink); margin-bottom: 20px;">ROLLING THE DRUM...</div>
-    <div id="shufflingName" style="font-size: 50px; font-weight: 900; color: var(--prestige-gold); text-align: center;">---</div>
-    <div id="shufflingLoc" style="opacity: 0.7; font-size: 18px;"></div>
-</div>
-
 <div id="loginPage" style="display: flex; align-items: center; justify-content: center; height: 100vh;">
-    <div class="card" style="width: 400px; text-align: center;">
-        <div class="logo-container"><img src="logo1.jpg"><img src="logo2.png"></div>
-        <h2 style="color: var(--siri-purple);">Secure Master Access</h2>
+    <div class="card" style="width: 450px; text-align: center;">
+        <div class="brand-header">
+            <img src="logo1.jpg" alt="Subham Grand">
+            <img src="logo2.png" alt="Siri Dress Divine">
+        </div>
+        <h2 style="color: var(--siri-purple); margin-bottom: 25px;">Secure Master Access</h2>
         <input type="text" id="user" placeholder="Username">
         <input type="password" id="pass" placeholder="Password">
-        <button class="btn btn-save" onclick="doLogin()">LOGIN</button>
+        <button class="btn btn-save" onclick="doLogin()">LOGIN TO SYSTEM</button>
     </div>
 </div>
 
 <div id="mainPage" style="display: none;">
     <div class="nav">
-        <div class="nav-logos"><img src="logo1.jpg"><img src="logo2.png"></div>
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <span id="storeTag" style="font-weight:900; color: var(--siri-purple);"></span>
-            <button onclick="location.reload()" style="color:red; background:none; border:1px solid red; padding:5px 10px; border-radius:5px; cursor:pointer;">Logout</button>
+        <div class="nav-logos">
+            <img src="logo1.jpg">
+            <img src="logo2.png">
+        </div>
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <span id="storeTag" style="font-weight:900; color: var(--siri-purple); font-size: 18px;"></span>
+            <button onclick="location.reload()" style="color:red; background:none; border:1px solid red; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight: bold;">Logout</button>
         </div>
     </div>
 
     <div class="container">
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px;">
             <div class="card">
-                <h3>📜 Entry Form</h3>
+                <h3>📜 New Entry</h3>
                 <input type="text" id="cName" placeholder="Customer Name">
                 <input type="tel" id="cPhone" placeholder="Mobile Number">
                 <input type="text" id="cBill" placeholder="Bill Number">
                 <input type="number" id="cAmount" placeholder="Bill Value (Min ₹2999)">
-                <button class="btn btn-save" onclick="saveToSheet()">SAVE ENTRY</button>
+                <button class="btn btn-save" id="saveBtn" onclick="saveToSheet()">SAVE RECORD</button>
             </div>
 
-            <div class="card" style="border: 3px solid var(--sg-pink); text-align: center;">
+            <div class="card" style="border: 4px solid var(--sg-pink); text-align: center;">
                 <h3 style="color: var(--sg-pink);">🎡 Lucky Draw Center</h3>
-                <div id="adminControls" style="display: none; background: #fff5f8; padding: 12px; border-radius: 12px; margin-bottom: 10px;">
-                    <select id="dateMode" onchange="refreshEntries()"><option value="today">Today's Data</option><option value="all">Full History</option></select>
-                    <select id="drawScope" style="margin-top:8px;">
-                        <option value="all">-- ALL STORES (COMPANY WIDE) --</option>
-                        <optgroup label="SUBHAM GRAND">
-                            <option value="sg_eluru">Eluru</option><option value="sg_tuni">Tuni</option>
-                            <option value="sg_tanuku">Tanuku</option><option value="sg_tenali">Tenali</option>
-                            <option value="sg_rjy">Rajamahendravaram</option><option value="sg_tpt">Tirupati</option>
-                            <option value="sg_vja">Vijayawada</option><option value="sg_kkd">Kakinada</option>
-                            <option value="sg_hyd">Hyderabad</option>
-                        </optgroup>
-                        <optgroup label="SIRI DRESS DIVINE">
-                            <option value="siri_ameerpeta">Ameerpeta (Hyd)</option>
-                            <option value="siri_vja">Vijayawada</option><option value="siri_kkd">Kakinada</option>
-                            <option value="siri_vzg">Vizag</option><option value="siri_tpt">Tirupati</option>
-                            <option value="siri_rjy">Rajamahendravaram</option><option value="siri_bvm">Bhimavaram</option>
-                            <option value="siri_hyd">Hyderabad (General)</option>
-                        </optgroup>
-                    </select>
-                    <button class="btn btn-download" onclick="downloadExcelReport()">📊 DOWNLOAD EXCEL REPORT</button>
-                </div>
-                <button class="btn btn-winner" onclick="pickWinnerWithShuffle()">🚀 RUN DRAW BLAST</button>
+                <button class="btn btn-winner" onclick="pickWinner()">🚀 RUN LIVE DRAW</button>
             </div>
         </div>
 
         <div class="card" id="entriesCard" style="display: none;">
-            <h3>📊 Live Entries</h3>
-            <div style="overflow-x:auto;"><table><thead><tr><th>Store</th><th>Customer</th><th>Bill #</th><th>Value</th><th>Date</th></tr></thead><tbody id="tableBody"></tbody></table></div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3>📊 Live Store Records</h3>
+                <button class="btn" style="width: auto; padding: 10px 20px; background: #eee; color: #333;" onclick="refreshEntries()">Refresh List</button>
+            </div>
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr><th>Store</th><th>Customer</th><th>Bill #</th><th>Value</th><th>Date</th></tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
         </div>
-
-        <div class="card" id="winnerCard" style="display: none;">
-            <h3 style="color: #ffaa00;">🏆 Today's Winner History</h3>
-            <div style="overflow-x:auto;"><table><thead><tr><th>Store</th><th>Winner Name</th><th>Phone</th><th>Bill #</th></tr></thead><tbody id="winnerBody"></tbody></table></div>
-        </div>
-    </div>
-</div>
-
-<div id="winnerOverlay" class="overlay">
-    <div class="coupon" id="winnerCoupon">
-        <h1>🎊 CONGRATULATIONS 🎊</h1>
-        <div id="winnerFinalInfo" style="text-align: left; padding: 15px; background: #fff; border-radius: 10px; border: 1px solid #eee;"></div>
-        <button class="btn" style="background:#25D366; color:white; margin-top: 15px;" onclick="waNotify()">📲 WHATSAPP WINNER</button>
-        <button onclick="closeWinner()" style="margin-top:10px; background:none; border:none; color:#bbb; cursor:pointer;">Close</button>
     </div>
 </div>
 
 <script>
-    const SCRIPT_URL = "YOUR_GOOGLE_APPS_SCRIPT_URL"; //
+    // UPDATED SCRIPT URL
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzsv6F8oW_HxQh2wA1MDSsAk7ro-aGgeO4dkR0PziKsW_kHTw30kaUvKDYbVa2n3e1XOA/exec";
+    
     const CREDENTIALS = { 
         "admin_hq": "SG_SIRI_MASTER_2026", 
-        "siri_ameerpeta": "SIRI@2026!AMP_HYD", //
-        "sg_eluru": "SG@2026!ELR", "sg_tuni": "SG@2026!TNI", "sg_tanuku": "SG@2026!TNK",
-        "sg_tenali": "SG@2026!TNL", "sg_rjy": "SG@2026!RJY", "sg_vja": "SG@2026!VJA",
-        "sg_kkd": "SG@2026!KKD", "sg_tpt": "SG@2026!TPT", "sg_hyd": "SG@2026!HYD",
-        "siri_vja": "SIRI@2026!VJA", "siri_kkd": "SIRI@2026!KKD", "siri_vzg": "SIRI@2026!VZG",
-        "siri_tpt": "SIRI@2026!TPT", "siri_rjy": "SIRI@2026!RJY", "siri_bvm": "SIRI@2026!BVM"
-    }; //
+        "siri_ameerpeta": "SIRI@2026!AMP_HYD", 
+        "sg_eluru": "SG@2026!ELR",
+        "sg_vja": "SG@2026!VJA",
+        "siri_vja": "SIRI@2026!VJA"
+    };
 
-    let loggedUser = "", isMasterAdmin = false, latestData = [], winnersList = [];
+    let loggedUser = "", isMasterAdmin = false, latestData = [];
 
     function doLogin() {
         const u = document.getElementById('user').value.toLowerCase().trim();
@@ -136,97 +115,95 @@
             loggedUser = u;
             document.getElementById('loginPage').style.display = 'none';
             document.getElementById('mainPage').style.display = 'block';
-            if (u === "admin_hq") {
-                isMasterAdmin = true;
-                document.getElementById('storeTag').innerText = "👑 ADMIN HQ";
-                document.getElementById('adminControls').style.display = "block";
-                document.getElementById('entriesCard').style.display = "block";
-                document.getElementById('winnerCard').style.display = "block";
-                refreshEntries();
-            } else { document.getElementById('storeTag').innerText = "📍 " + u.toUpperCase(); }
-        } else { alert("Access Denied"); }
+            document.getElementById('storeTag').innerText = (u === "admin_hq") ? "👑 ADMIN HQ" : "📍 " + u.toUpperCase();
+            document.getElementById('entriesCard').style.display = "block";
+            refreshEntries();
+        } else { alert("Access Denied: Incorrect Username or Password"); }
     }
 
     async function refreshEntries() {
         const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = '<tr><td colspan="5">Syncing Cloud...</td></tr>';
-        const res = await fetch(SCRIPT_URL + "?action=getEntries");
-        latestData = await res.json();
-        const mode = isMasterAdmin ? document.getElementById('dateMode').value : 'today';
-        const filtered = mode === 'today' ? latestData.filter(e => new Date(e.timestamp).toDateString() === new Date().toDateString()) : latestData;
+        tbody.innerHTML = '<tr><td colspan="5">Syncing with Google Sheets...</td></tr>';
         
-        tbody.innerHTML = '';
-        filtered.reverse().forEach(e => {
-            let dDisplay = "N/A";
-            if(e.timestamp) {
-                const d = new Date(e.timestamp);
-                dDisplay = isNaN(d.getTime()) ? "Format Error" : d.toLocaleDateString('en-IN'); //
-            }
-            tbody.innerHTML += `<tr><td>${e.storeName.toUpperCase()}</td><td>${e.name}</td><td>${e.billNo}</td><td>₹${e.billValue}</td><td>${dDisplay}</td></tr>`;
-        });
-    }
-
-    async function pickWinnerWithShuffle() {
-        const mode = isMasterAdmin ? document.getElementById('dateMode').value : 'today';
-        const entries = mode === 'today' ? latestData.filter(e => new Date(e.timestamp).toDateString() === new Date().toDateString()) : latestData;
-        const scope = isMasterAdmin ? document.getElementById('drawScope').value : loggedUser;
-        const pool = scope === 'all' ? entries : entries.filter(e => e.storeName === scope);
-
-        if (pool.length < 1) { alert("NO ENTRIES FOUND!"); return; }
-        document.getElementById('shuffleOverlay').style.display = 'flex';
-        let count = 0;
-        let si = setInterval(() => {
-            let r = pool[Math.floor(Math.random() * pool.length)];
-            document.getElementById('shufflingName').innerText = r.name.toUpperCase();
-            document.getElementById('shufflingLoc').innerText = r.storeName.toUpperCase();
-            if(++count > 40) { clearInterval(si); finalizeWinner(pool); }
-        }, 60);
-    }
-
-    function finalizeWinner(pool) {
-        const winner = pool[Math.floor(Math.random() * pool.length)];
-        document.getElementById('shuffleOverlay').style.display = 'none';
-        winnersList.unshift(winner); //
-        updateWinnerTable();
-        document.getElementById('winnerFinalInfo').innerHTML = `<b>NAME:</b> ${winner.name}<br><b>BILL:</b> ${winner.billNo}<br><b>STORE:</b> ${winner.storeName.toUpperCase()}`;
-        document.getElementById('winnerOverlay').style.display = 'flex';
-        setTimeout(() => document.getElementById('winnerCoupon').classList.add('show'), 50);
-        confetti({ particleCount: 300, spread: 100 });
-    }
-
-    function updateWinnerTable() {
-        const wBody = document.getElementById('winnerBody');
-        wBody.innerHTML = '';
-        winnersList.forEach(w => {
-            wBody.innerHTML += `<tr><td>${w.storeName.toUpperCase()}</td><td>${w.name}</td><td>${w.phone}</td><td>${w.billNo}</td></tr>`;
-        });
-    }
-
-    function downloadExcelReport() {
-        let csv = "Store,Customer,Phone,Bill,Value,Date\n";
-        latestData.forEach(e => csv += `${e.storeName},${e.name},${e.phone},${e.billNo},${e.billValue},${new Date(e.timestamp).toLocaleDateString('en-IN')}\n`);
-        const link = document.createElement("a");
-        link.href = encodeURI("data:text/csv;charset=utf-8," + csv);
-        link.download = "SG_Siri_Master_Report.csv";
-        link.click();
+        try {
+            const res = await fetch(SCRIPT_URL + "?action=getEntries");
+            latestData = await res.json();
+            
+            tbody.innerHTML = '';
+            latestData.slice().reverse().forEach(e => {
+                let formattedDate = "N/A";
+                if(e.timestamp) {
+                    const d = new Date(e.timestamp);
+                    if (!isNaN(d.getTime())) {
+                        formattedDate = d.toLocaleDateString('en-IN', {
+                            day: '2-digit', month: 'short', year: 'numeric'
+                        });
+                    } else {
+                        formattedDate = `<span class="invalid-date">Format Error</span>`;
+                    }
+                }
+                
+                tbody.innerHTML += `<tr>
+                    <td>${(e.storeName || 'N/A').toUpperCase()}</td>
+                    <td>${e.name || 'N/A'}</td>
+                    <td>${e.billNo || 'N/A'}</td>
+                    <td>₹${e.billValue || '0'}</td>
+                    <td>${formattedDate}</td>
+                </tr>`;
+            });
+        } catch (err) {
+            tbody.innerHTML = '<tr><td colspan="5" style="color:red;">Error connecting to database.</td></tr>';
+        }
     }
 
     async function saveToSheet() {
-        const params = new URLSearchParams({ 
-            storeName: loggedUser, 
-            customerName: document.getElementById('cName').value, 
-            phoneNumber: document.getElementById('cPhone').value, 
-            billNumber: document.getElementById('cBill').value, 
-            billValue: document.getElementById('cAmount').value 
-        });
-        await fetch(SCRIPT_URL, { method: 'POST', body: params });
-        alert("Entry Saved!"); refreshEntries();
+        const btn = document.getElementById('saveBtn');
+        const name = document.getElementById('cName').value;
+        const phone = document.getElementById('cPhone').value;
+        const bill = document.getElementById('cBill').value;
+        const amount = document.getElementById('cAmount').value;
+
+        if(!name || !phone || !bill || !amount) {
+            alert("Please fill all fields");
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerText = "SAVING...";
+
+        try {
+            const params = new URLSearchParams({ 
+                storeName: loggedUser, 
+                customerName: name, 
+                phoneNumber: phone, 
+                billNumber: bill, 
+                billValue: amount 
+            });
+            await fetch(SCRIPT_URL, { method: 'POST', body: params, mode: 'no-cors' });
+            
+            alert("Customer Entry Saved Successfully!");
+            // Clear inputs
+            document.getElementById('cName').value = '';
+            document.getElementById('cPhone').value = '';
+            document.getElementById('cBill').value = '';
+            document.getElementById('cAmount').value = '';
+            refreshEntries();
+        } catch (err) {
+            alert("Error saving record. Check your connection.");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "SAVE RECORD";
+        }
     }
 
-    function closeWinner() { document.getElementById('winnerOverlay').style.display = 'none'; document.getElementById('winnerCoupon').classList.remove('show'); }
-    function waNotify() { 
-        const w = winnersList[0];
-        window.open(`https://api.whatsapp.com/send?phone=91${w.phone}&text=Congratulations ${w.name}! You won the SG & Siri Lucky Draw!`); 
+    function pickWinner() {
+        if (latestData.length === 0) {
+            alert("No entries available to pick a winner!");
+            return;
+        }
+        const winner = latestData[Math.floor(Math.random() * latestData.length)];
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+        alert(`🎉 WINNER FOUND! \n\nName: ${winner.name}\nStore: ${winner.storeName.toUpperCase()}\nBill: ${winner.billNo}`);
     }
 </script>
 </body>
