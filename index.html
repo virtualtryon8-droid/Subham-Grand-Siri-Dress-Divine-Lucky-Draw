@@ -3,85 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SG & Siri | Master Admin Portal</title>
+    <title>SG & Siri | Master Admin Portal 2026</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
-        :root { --siri-purple: #4b0082; --sg-pink: #d63384; --prestige-gold: #ffd700; --bg: #f4f7f6; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; }
-        
-        /* Branding Styles */
-        .brand-header { display: flex; align-items: center; justify-content: center; gap: 40px; margin: 25px 0; }
-        .brand-header img { height: 90px; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1)); border-radius: 10px; }
-        
-        .nav { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--siri-purple); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .nav-logos { display: flex; align-items: center; gap: 20px; }
-        .nav-logos img { height: 55px; }
-        
-        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
-        .card { background: white; padding: 30px; border-radius: 20px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        h3 { color: var(--siri-purple); border-left: 5px solid var(--sg-pink); padding-left: 15px; margin-top: 0; }
-        input, select { width: 100%; padding: 16px; margin: 10px 0; border: 2px solid #eee; border-radius: 12px; font-size: 16px; box-sizing: border-box; }
-        
-        .btn { width: 100%; padding: 18px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
-        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        :root { --siri-purple: #4b0082; --sg-pink: #d63384; --gold: #ffd700; --bg: #f8fafc; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); margin: 0; color: #1e293b; }
+        .nav { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--siri-purple); position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .nav-logos img { height: 50px; margin-right: 15px; border-radius: 8px; }
+        .container { max-width: 1300px; margin: 30px auto; padding: 0 20px; }
+        .card { background: white; padding: 25px; border-radius: 16px; margin-bottom: 25px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
+        h3 { color: var(--siri-purple); margin-top: 0; border-left: 5px solid var(--sg-pink); padding-left: 15px; }
+        input, select { width: 100%; padding: 14px; margin: 8px 0; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; transition: 0.2s; }
+        input:focus, select:focus { border-color: var(--siri-purple); outline: none; background: #fdfaff; }
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
         .btn-save { background: var(--siri-purple); color: white; }
-        .btn-winner { background: linear-gradient(45deg, var(--sg-pink), #ff007f); color: white; }
-        
-        table { width: 100%; border-collapse: collapse; font-size: 15px; margin-top: 10px; }
-        th { background: #f8f8f8; padding: 15px; text-align: left; border-bottom: 3px solid #eee; color: #555; }
-        td { padding: 15px; border-bottom: 1px solid #eee; }
-        .invalid-date { color: #d9534f; font-weight: bold; background: #fff1f0; padding: 4px 8px; border-radius: 4px; }
+        .btn-winner { background: linear-gradient(135deg, var(--gold), #f59e0b); color: #000; border: 2px solid #b45309; }
+        .btn-winner:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4); }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th { background: #f1f5f9; padding: 12px; text-align: left; font-size: 13px; color: #64748b; }
+        td { padding: 14px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .sg-badge { background: #fdf2f8; color: var(--sg-pink); border: 1px solid #fbcfe8; }
+        .siri-badge { background: #f5f3ff; color: var(--siri-purple); border: 1px solid #ddd6fe; }
     </style>
 </head>
 <body>
 
-<div id="loginPage" style="display: flex; align-items: center; justify-content: center; height: 100vh;">
-    <div class="card" style="width: 450px; text-align: center;">
-        <div class="brand-header">
-            <img src="logo1.jpg" alt="Subham Grand">
-            <img src="logo2.png" alt="Siri Dress Divine">
-        </div>
-        <h2 style="color: var(--siri-purple); margin-bottom: 25px;">Secure Master Access</h2>
-        <input type="text" id="user" placeholder="Username">
-        <input type="password" id="pass" placeholder="Password">
-        <button class="btn btn-save" onclick="doLogin()">LOGIN TO SYSTEM</button>
+<div id="loginPage" style="display: flex; align-items: center; justify-content: center; height: 100vh; background: linear-gradient(135deg, #4b0082, #d63384);">
+    <div class="card" style="width: 400px; text-align: center; border: none;">
+        <h2 style="color: var(--siri-purple);">Portal Login</h2>
+        <input type="text" id="user" placeholder="Enter Store Username">
+        <input type="password" id="pass" placeholder="Enter Password">
+        <button class="btn btn-save" onclick="doLogin()">Access System</button>
     </div>
 </div>
 
 <div id="mainPage" style="display: none;">
     <div class="nav">
-        <div class="nav-logos">
-            <img src="logo1.jpg">
-            <img src="logo2.png">
-        </div>
-        <div style="display: flex; align-items: center; gap: 20px;">
-            <span id="storeTag" style="font-weight:900; color: var(--siri-purple); font-size: 18px;"></span>
-            <button onclick="location.reload()" style="color:red; background:none; border:1px solid red; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight: bold;">Logout</button>
+        <div class="nav-logos"><img src="logo1.jpg"><img src="logo2.png"></div>
+        <div>
+            <span id="storeTag" style="font-weight:bold; color: var(--siri-purple); margin-right: 20px;"></span>
+            <button onclick="location.reload()" style="color:#ef4444; border:1px solid #ef4444; background:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight: 600;">Logout</button>
         </div>
     </div>
 
     <div class="container">
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px;">
             <div class="card">
-                <h3>📜 New Entry</h3>
+                <h3>📜 Customer Billing</h3>
                 <input type="text" id="cName" placeholder="Customer Name">
                 <input type="tel" id="cPhone" placeholder="Mobile Number">
                 <input type="text" id="cBill" placeholder="Bill Number">
-                <input type="number" id="cAmount" placeholder="Bill Value (Min ₹2999)">
-                <button class="btn btn-save" id="saveBtn" onclick="saveToSheet()">SAVE RECORD</button>
+                <input type="number" id="cAmount" placeholder="Bill Amount (Min ₹2999)">
+                <button class="btn btn-save" id="saveBtn" onclick="saveToSheet()">Save Entry</button>
             </div>
 
-            <div class="card" style="border: 4px solid var(--sg-pink); text-align: center;">
-                <h3 style="color: var(--sg-pink);">🎡 Lucky Draw Center</h3>
-                <button class="btn btn-winner" onclick="pickWinner()">🚀 RUN LIVE DRAW</button>
+            <div class="card" style="border: 2px solid var(--gold); background: #fffdf5;">
+                <h3 style="border-color: var(--gold);">🎡 Lucky Draw Center</h3>
+                <div id="adminDrawControls" style="display:none;">
+                    <label style="font-size: 12px; font-weight: bold; color: #b45309;">SELECT DRAW SCOPE:</label>
+                    <select id="drawFilter"></select>
+                </div>
+                <p id="drawInfo" style="font-size: 13px; color: #64748b; margin: 15px 0;">Ready to run the random selection.</p>
+                <button class="btn btn-winner" onclick="pickWinner()">🚀 Run Live Draw</button>
             </div>
         </div>
 
-        <div class="card" id="entriesCard" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3>📊 Live Store Records</h3>
-                <button class="btn" style="width: auto; padding: 10px 20px; background: #eee; color: #333;" onclick="refreshEntries()">Refresh List</button>
-            </div>
+        <div class="card">
+            <h3>📊 Live Data (Last 50 Entries)</h3>
             <div style="overflow-x:auto;">
                 <table>
                     <thead>
@@ -95,18 +84,23 @@
 </div>
 
 <script>
-    // UPDATED SCRIPT URL
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzsv6F8oW_HxQh2wA1MDSsAk7ro-aGgeO4dkR0PziKsW_kHTw30kaUvKDYbVa2n3e1XOA/exec";
     
-    const CREDENTIALS = { 
-        "admin_hq": "SG_SIRI_MASTER_2026", 
-        "siri_ameerpeta": "SIRI@2026!AMP_HYD", 
-        "sg_eluru": "SG@2026!ELR",
-        "sg_vja": "SG@2026!VJA",
-        "siri_vja": "SIRI@2026!VJA"
+    // MASTER LIST: SUBHAM GRAND & SIRI LOCATIONS
+    const CREDENTIALS = {
+        "admin_hq": "SG_SIRI_MASTER_2026",
+        // Subham Grand
+        "sg_eluru": "SG@ELR2026", "sg_tanuku": "SG@TNK2026", "sg_tuni": "SG@TUNI2026",
+        "sg_tenali": "SG@TEN2026", "sg_rajahmundry": "SG@RJY2026", "sg_vja": "SG@VJA2026",
+        "sg_kakinada": "SG@KKD2026", "sg_tirupati": "SG@TPT2026", "sg_hyderabad": "SG@HYD2026",
+        "sg_chilakaluripet": "SG@CPT2026",
+        // Siri
+        "siri_hyderabad": "SIRI@HYD2026", "siri_vja": "SIRI@VJA2026", "siri_kakinada": "SIRI@KKD2026",
+        "siri_chilakaluripet": "SIRI@CPT2026", "siri_vizag": "SIRI@VZG2026", "siri_tirupati": "SIRI@TPT2026",
+        "siri_rajahmundry": "SIRI@RJY2026", "siri_bhimavaram": "SIRI@BVM2026", "siri_eluru": "SIRI@ELR2026"
     };
 
-    let loggedUser = "", isMasterAdmin = false, latestData = [];
+    let loggedUser = "", latestData = [];
 
     function doLogin() {
         const u = document.getElementById('user').value.toLowerCase().trim();
@@ -115,95 +109,65 @@
             loggedUser = u;
             document.getElementById('loginPage').style.display = 'none';
             document.getElementById('mainPage').style.display = 'block';
-            document.getElementById('storeTag').innerText = (u === "admin_hq") ? "👑 ADMIN HQ" : "📍 " + u.toUpperCase();
-            document.getElementById('entriesCard').style.display = "block";
+            document.getElementById('storeTag').innerText = u === 'admin_hq' ? "👑 MASTER ADMIN" : "📍 " + u.replace('sg_','SG ').replace('siri_','SIRI ').toUpperCase();
+            
+            if (u === "admin_hq") {
+                const filter = document.getElementById('drawFilter');
+                filter.innerHTML = `<option value="ALL">🌍 ALL STORES (Global)</option>`;
+                Object.keys(CREDENTIALS).forEach(key => {
+                    if(key !== 'admin_hq') filter.innerHTML += `<option value="${key}">${key.replace('_',' ').toUpperCase()}</option>`;
+                });
+                document.getElementById('adminDrawControls').style.display = "block";
+            }
             refreshEntries();
-        } else { alert("Access Denied: Incorrect Username or Password"); }
+        } else { alert("Wrong Username/Password!"); }
     }
 
     async function refreshEntries() {
         const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = '<tr><td colspan="5">Syncing with Google Sheets...</td></tr>';
-        
+        tbody.innerHTML = '<tr><td colspan="5">Syncing with Google Database...</td></tr>';
         try {
             const res = await fetch(SCRIPT_URL + "?action=getEntries");
             latestData = await res.json();
-            
             tbody.innerHTML = '';
             latestData.slice().reverse().forEach(e => {
-                let formattedDate = "N/A";
-                if(e.timestamp) {
-                    const d = new Date(e.timestamp);
-                    if (!isNaN(d.getTime())) {
-                        formattedDate = d.toLocaleDateString('en-IN', {
-                            day: '2-digit', month: 'short', year: 'numeric'
-                        });
-                    } else {
-                        formattedDate = `<span class="invalid-date">Format Error</span>`;
-                    }
-                }
-                
+                const bType = e.storeName.startsWith('sg') ? 'sg-badge' : 'siri-badge';
                 tbody.innerHTML += `<tr>
-                    <td>${(e.storeName || 'N/A').toUpperCase()}</td>
-                    <td>${e.name || 'N/A'}</td>
-                    <td>${e.billNo || 'N/A'}</td>
-                    <td>₹${e.billValue || '0'}</td>
-                    <td>${formattedDate}</td>
+                    <td><span class="badge ${bType}">${e.storeName.toUpperCase()}</span></td>
+                    <td>${e.name}</td><td>${e.billNo}</td><td>₹${e.billValue}</td>
+                    <td>${new Date(e.timestamp).toLocaleDateString()}</td>
                 </tr>`;
             });
-        } catch (err) {
-            tbody.innerHTML = '<tr><td colspan="5" style="color:red;">Error connecting to database.</td></tr>';
-        }
+        } catch (e) { tbody.innerHTML = '<tr><td colspan="5">Error loading data.</td></tr>'; }
     }
 
     async function saveToSheet() {
         const btn = document.getElementById('saveBtn');
-        const name = document.getElementById('cName').value;
-        const phone = document.getElementById('cPhone').value;
-        const bill = document.getElementById('cBill').value;
-        const amount = document.getElementById('cAmount').value;
-
-        if(!name || !phone || !bill || !amount) {
-            alert("Please fill all fields");
-            return;
-        }
-
-        btn.disabled = true;
-        btn.innerText = "SAVING...";
-
-        try {
-            const params = new URLSearchParams({ 
-                storeName: loggedUser, 
-                customerName: name, 
-                phoneNumber: phone, 
-                billNumber: bill, 
-                billValue: amount 
-            });
-            await fetch(SCRIPT_URL, { method: 'POST', body: params, mode: 'no-cors' });
-            
-            alert("Customer Entry Saved Successfully!");
-            // Clear inputs
-            document.getElementById('cName').value = '';
-            document.getElementById('cPhone').value = '';
-            document.getElementById('cBill').value = '';
-            document.getElementById('cAmount').value = '';
-            refreshEntries();
-        } catch (err) {
-            alert("Error saving record. Check your connection.");
-        } finally {
-            btn.disabled = false;
-            btn.innerText = "SAVE RECORD";
-        }
+        btn.disabled = true; btn.innerText = "Processing...";
+        const params = new URLSearchParams({ 
+            storeName: loggedUser, customerName: document.getElementById('cName').value, 
+            phoneNumber: document.getElementById('cPhone').value, 
+            billNumber: document.getElementById('cBill').value, 
+            billValue: document.getElementById('cAmount').value 
+        });
+        await fetch(SCRIPT_URL, { method: 'POST', body: params, mode: 'no-cors' });
+        alert("Success! Entry Recorded.");
+        document.querySelectorAll('input').forEach(i => i.value = '');
+        btn.disabled = false; btn.innerText = "Save Entry";
+        refreshEntries();
     }
 
     function pickWinner() {
-        if (latestData.length === 0) {
-            alert("No entries available to pick a winner!");
-            return;
-        }
-        const winner = latestData[Math.floor(Math.random() * latestData.length)];
-        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-        alert(`🎉 WINNER FOUND! \n\nName: ${winner.name}\nStore: ${winner.storeName.toUpperCase()}\nBill: ${winner.billNo}`);
+        if (latestData.length === 0) return alert("No entries yet!");
+        let pool = (loggedUser === 'admin_hq' && document.getElementById('drawFilter').value !== "ALL") 
+                   ? latestData.filter(e => e.storeName === document.getElementById('drawFilter').value)
+                   : (loggedUser === 'admin_hq' ? latestData : latestData.filter(e => e.storeName === loggedUser));
+
+        if (pool.length === 0) return alert("No entries found for this selection!");
+        
+        const winner = pool[Math.floor(Math.random() * pool.length)];
+        confetti({ particleCount: 250, spread: 100, origin: { y: 0.6 } });
+        alert(`🎉 WINNER PICKED! 🎉\n\nName: ${winner.name.toUpperCase()}\nStore: ${winner.storeName.toUpperCase()}\nBill #: ${winner.billNo}`);
     }
 </script>
 </body>
