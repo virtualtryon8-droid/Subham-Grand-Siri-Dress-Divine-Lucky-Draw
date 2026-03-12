@@ -18,8 +18,8 @@
         .btn-save { background: var(--siri-purple); color: white; }
         .btn-winner { background: linear-gradient(135deg, #d63384, #4b0082); color: #fff; font-size: 22px; border: 2px solid var(--gold); letter-spacing: 2px; }
         .btn-whatsapp { background: var(--whatsapp); color: white; margin-top: 10px; }
+        .btn-reset { background: #64748b; color: white; font-size: 12px; padding: 8px; margin-top: 10px; opacity: 0.7; }
         
-        /* Overlay */
         #winnerOverlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle, #1e293b 0%, #000 100%); z-index: 9999; 
@@ -45,14 +45,14 @@
         table { width: 100%; border-collapse: collapse; }
         th { background: #f1f5f9; padding: 12px; text-align: left; }
         td { padding: 12px; border-bottom: 1px solid #eee; }
-        .date-badge { font-size: 12px; font-weight: bold; color: var(--siri-purple); }
+        .status-msg { font-size: 12px; color: var(--siri-purple); font-weight: bold; margin-bottom: 5px; }
     </style>
 </head>
 <body>
 
 <div id="winnerOverlay">
     <div id="shuffleWrapper" style="text-align: center;">
-        <div class="shuffle-sub" id="shuffleStatus">SELECTING WINNER...</div>
+        <div class="shuffle-sub" id="shuffleStatus">SELECTING ELIGIBLE WINNER...</div>
         <div id="shuffleName" class="shuffle-name">READY</div>
         <div id="timerDisplay" style="color:var(--gold); font-family: monospace; margin-top: 30px; font-size: 28px;">10.0s</div>
     </div>
@@ -93,12 +93,13 @@
                 <input type="text" id="cName" placeholder="Customer Name">
                 <input type="tel" id="cPhone" placeholder="Mobile Number">
                 <input type="text" id="cBill" placeholder="Bill Number">
-                <input type="number" id="cAmount" placeholder="Bill Amount">
+                <input type="number" id="cAmount" placeholder="Bill Amount (Min ₹2999 for Draw)">
                 <button class="btn btn-save" id="saveBtn" onclick="saveToSheet()">Save Customer</button>
             </div>
 
             <div class="card" style="text-align: center; border: 3px solid var(--gold); background: #fffcf0;">
                 <h3>🎡 Prize Draw</h3>
+                <div class="status-msg">Only Bills ≥ ₹2999 eligible</div>
                 <div style="margin-bottom: 10px;">
                     <label style="font-size: 11px; font-weight: 900;">SELECT DRAW DATE:</label>
                     <input type="date" id="drawDate" onchange="refreshEntries()">
@@ -106,6 +107,206 @@
                 <div id="adminControls" style="display:none; margin-bottom: 20px;">
                     <select id="drawFilter" onchange="refreshEntries()"></select>
                 </div>
+                <button class="btn btn-winner" onclick="startLongShuffle()">🎰 LUCKY DRAW</button>
+                <button class="btn btn-reset" onclick="resetSessionWinners()">Reset Daily Winners List</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3>📊 Database</h3>
+                <div style="width: 180px;">
+                    <input type="date" id="viewDate" onchange="refreshEntries()" style="padding: 8px;">
+                </div>
+            </div>
+            <div style="overflow-x:auto;">
+                <table id="dataTable">
+                    <thead><tr><th>Store</th><th>Customer</th><th>Bill #</th><th>Value</th><th>Time</th></tr></thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwoJIZtRJTRjAvqAeWbqctfUTOrGmeeOMK0H5J1uK1DOGTk38aStnqENckPS6Spg01x7g/exec";
+    
+    const CREDENTIALS = {
+        "admin_hq": "SG_SIRI_MASTER_2026",
+        "sg_eluru": "SG@ELR2026", "sg_tanuku": "SG@TNK2026", "sg_tuni": "SG@TUNI2026",
+        "sg_tenali": "SG@TEN2026", "sg_rajahmundry": "SG@RJY2026", "sg_vja": "SG@VJA2026",
+        "sg_kakinada": "SG@KKD2026", "sg_tirupati": "SG@TPT2026", "sg_hyderabad": "SG@HYD2026",
+        "sg_chilakaluripet": "SG@CPT2026",
+        "siri_hyderabad": "SIRI@HYD2026", "siri_vja": "SIRI@VJA2026", "siri_kakinada": "SIRI@KKD2026",
+        "siri_chilakaluripet": "SIRI@CPT2026", "siri_vizag": "SIRI@VZG2026", "siri_tirupati": "SIRI@TPT2026",
+        "siri_rajahmundry": "SIRI@RJY2026", "siri_bhimavaram": "SIRI@BVM2026", "siri_eluru": "SIRI@ELR2026"
+    };
+
+    let loggedUser = "", latestData = [], currentWinner = null;
+    let winnersHistory = []; // Tracks phone numbers that won in this session
+
+    window.onload = () => {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('drawDate').value = today;
+        document.getElementById('viewDate').value = today;
+    };
+
+    function doLogin() {
+        const u = document.getElementById('user').value.toLowerCase().trim();
+        const p = document.getElementById('pass').value.trim();
+        if (CREDENTIALS[u] === p) {
+            loggedUser = u;
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('mainPage').style.display = 'block';
+            document.getElementById('storeTag').innerText = u.toUpperCase();
+            if (u === "admin_hq") {
+                const df = document.getElementById('drawFilter');
+                df.innerHTML = `<option value="ALL">🌍 ALL STORES</option>`;
+                Object.keys(CREDENTIALS).forEach(k => { if(k!=='admin_hq') df.innerHTML += `<option value="${k}">${k.toUpperCase()}</option>`; });
+                document.getElementById('adminControls').style.display = 'block';
+            }
+            refreshEntries();
+        } else { alert("Login Error!"); }
+    }
+
+    async function refreshEntries() {
+        const tbody = document.getElementById('tableBody');
+        const selectedDate = document.getElementById('viewDate').value;
+        tbody.innerHTML = '<tr><td colspan="5">Syncing...</td></tr>';
+        
+        try {
+            const res = await fetch(`${SCRIPT_URL}?action=getEntries&date=${selectedDate}`);
+            const data = await res.json();
+            latestData = (loggedUser === 'admin_hq') ? data : data.filter(e => e.storeName === loggedUser);
+            
+            tbody.innerHTML = '';
+            if(latestData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No entries for this date.</td></tr>';
+                return;
+            }
+            latestData.slice().reverse().forEach(e => {
+                const time = new Date(e.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                tbody.innerHTML += `<tr>
+                    <td>${e.storeName.toUpperCase()}</td>
+                    <td>${e.name}</td>
+                    <td>${e.billNo}</td>
+                    <td>₹${e.billValue}</td>
+                    <td>${time}</td>
+                </tr>`;
+            });
+        } catch (err) {
+            tbody.innerHTML = '<tr><td colspan="5">Error loading data.</td></tr>';
+        }
+    }
+
+    async function saveToSheet() {
+        const btn = document.getElementById('saveBtn'); 
+        if(!document.getElementById('cName').value) return alert("Enter Name");
+        btn.disabled = true; btn.innerText = "Saving...";
+        
+        const params = new URLSearchParams({ 
+            storeName: loggedUser, 
+            customerName: document.getElementById('cName').value, 
+            phoneNumber: document.getElementById('cPhone').value, 
+            billNumber: document.getElementById('cBill').value, 
+            billValue: document.getElementById('cAmount').value 
+        });
+
+        try {
+            await fetch(SCRIPT_URL, { method: 'POST', body: params, mode: 'no-cors' });
+            alert("Saved Successfully!");
+            document.getElementById('cName').value = "";
+            document.getElementById('cPhone').value = "";
+            document.getElementById('cBill').value = "";
+            document.getElementById('cAmount').value = "";
+            refreshEntries();
+        } catch (e) { alert("Save failed. Try again."); }
+        btn.disabled = false; btn.innerText = "Save Customer";
+    }
+
+    function startLongShuffle() {
+        const drawDate = document.getElementById('drawDate').value;
+        
+        // FILTER LOGIC: 
+        // 1. Matches Draw Date
+        // 2. Bill Amount >= 2999
+        // 3. Phone number is NOT in winnersHistory
+        let pool = latestData.filter(e => 
+            e.dateOnly === drawDate && 
+            parseFloat(e.billValue) >= 2999 &&
+            !winnersHistory.includes(e.phone)
+        );
+        
+        if(loggedUser === 'admin_hq') {
+            const f = document.getElementById('drawFilter').value;
+            if(f !== "ALL") pool = pool.filter(e => e.storeName === f);
+        }
+
+        if (pool.length === 0) return alert("No ELIGIBLE customers (₹2999+) found, or all have already won today!");
+
+        const overlay = document.getElementById('winnerOverlay');
+        const shuffleName = document.getElementById('shuffleName');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const coupon = document.getElementById('couponCard');
+        const wrapper = document.getElementById('shuffleWrapper');
+
+        overlay.style.display = 'flex'; wrapper.style.display = 'block'; coupon.style.display = 'none';
+
+        let timeLeft = 10.0;
+        let shuffleSpeed = 70;
+
+        const timerInterval = setInterval(() => {
+            timeLeft -= 0.1;
+            timerDisplay.innerText = Math.max(0, timeLeft).toFixed(1) + "s";
+            if(timeLeft <= 0) clearInterval(timerInterval);
+        }, 100);
+
+        const shuffleNames = () => {
+            if(timeLeft <= 0) { revealFinalWinner(pool); return; }
+            shuffleName.innerText = pool[Math.floor(Math.random() * pool.length)].name;
+            if(timeLeft < 3) shuffleSpeed += 20;
+            setTimeout(shuffleNames, shuffleSpeed);
+        };
+        shuffleNames();
+    }
+
+    function revealFinalWinner(pool) {
+        currentWinner = pool[Math.floor(Math.random() * pool.length)];
+        
+        // Track this winner so they don't win again in this session
+        winnersHistory.push(currentWinner.phone);
+
+        document.getElementById('shuffleWrapper').style.display = 'none';
+        const card = document.getElementById('couponCard');
+        card.style.display = 'block';
+        
+        document.getElementById('wName').innerText = currentWinner.name.toUpperCase();
+        document.getElementById('wPhone').innerText = currentWinner.phone;
+        document.getElementById('wBill').innerText = currentWinner.billNo;
+        document.getElementById('wAmount').innerText = "₹" + currentWinner.billValue;
+        document.getElementById('wStore').innerText = currentWinner.storeName.replace('_',' ').toUpperCase();
+
+        confetti({ particleCount: 250, spread: 80, origin: { y: 0.6 } });
+    }
+
+    function resetSessionWinners() {
+        if(confirm("This will allow previous winners of today to win again. Continue?")) {
+            winnersHistory = [];
+            alert("Winners list cleared for this session.");
+        }
+    }
+
+    function shareToWhatsApp() {
+        if (!currentWinner) return;
+        const msg = `🎊 *LUCKY DRAW WINNER!* 🎊%0A%0AWe are excited to announce the winner of the SG & SIRI Lucky Draw!%0A%0A⭐ *Winner Name:* ${currentWinner.name.toUpperCase()}%0A📱 *Phone:* ${currentWinner.phone}%0A🧾 *Bill No:* ${currentWinner.billNo}%0A💰 *Bill Amount:* ₹${currentWinner.billValue}%0A📍 *Store:* ${currentWinner.storeName.toUpperCase()}%0A%0ACongratulations! 🏆✨`;
+        window.open(`https://wa.me/?text=${msg}`, '_blank');
+    }
+
+    function closeWinner() { document.getElementById('winnerOverlay').style.display = 'none'; currentWinner = null; }
+</script>
+</body>
+</html>
                 <button class="btn btn-winner" onclick="startLongShuffle()">🎰 LUCKY DRAW</button>
             </div>
         </div>
